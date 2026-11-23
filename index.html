@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compliance Monitoring - Demo Preview</title>
+<style>
+  :root{--navy:#0f2540;--blue:#2563eb;--bg:#f3f6fa;--line:#e5e9f0;--text:#1f2937;--muted:#6b7280}
+  *{box-sizing:border-box}body{margin:0;font:14px/1.5 "Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--text)}
+  a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+  h1,h2,h3{margin:0 0 10px}h2{font-size:22px}h3{font-size:16px}
+  .muted{color:var(--muted)}.small{font-size:12px}.hide{display:none!important}
+  .btn{display:inline-flex;align-items:center;gap:6px;background:#eef2f7;color:#334155;border:1px solid #dbe2ec;padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
+  .btn:hover{background:#e2e8f0}.btn.primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+  .btn.small{padding:6px 12px;font-size:12px}.btn.full{width:100%;padding:11px}
+  .auth-shell{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+  .auth-brand{background:linear-gradient(145deg,var(--navy),#0a1a30);color:#fff;padding:60px;display:flex;flex-direction:column;justify-content:center}
+  .auth-brand h1{font-size:38px;margin-top:20px}.auth-brand p{font-size:18px;color:#9fb6d4}
+  .brand-mark{width:56px;height:56px;border-radius:14px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff}
+  .brand-mark.small{width:40px;height:40px;font-size:14px;border-radius:10px}
+  .auth-panel{display:flex;align-items:center;justify-content:center;padding:40px}
+  .auth-card{width:100%;max-width:400px;background:#fff;padding:36px;border-radius:16px;box-shadow:0 18px 50px rgba(15,37,64,.12)}
+  .form-stack{display:flex;flex-direction:column;gap:14px;margin-top:18px}
+  label{display:flex;flex-direction:column;gap:6px;font-weight:600;font-size:13px}
+  input,select,textarea{width:100%;padding:10px 12px;border:1px solid #d6dde8;border-radius:8px;font:inherit;font-size:14px}
+  .hint{margin-top:20px;padding:12px 14px;border-radius:8px;background:#eff6ff;color:#1e40af;font-size:13px}
+  .hint code{background:#dbeafe;padding:1px 6px;border-radius:4px}
+  .app-shell{display:flex;min-height:100vh}.sidebar{width:240px;flex:0 0 240px;background:linear-gradient(180deg,var(--navy),#0b1e36);color:#dbe6f5;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+  .sidebar-brand{display:flex;align-items:center;gap:12px;padding:22px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .sidebar-brand strong{display:block;color:#fff}.sidebar-brand span{font-size:11px;color:#8fa8c8}
+  .nav{padding:18px 12px;display:flex;flex-direction:column;gap:4px;flex:1}
+  .nav a{color:#b9cbe2;padding:11px 14px;border-radius:8px}.nav a:hover,.nav a.active{background:var(--blue);color:#fff;text-decoration:none}
+  .sidebar-foot{padding:16px;border-top:1px solid rgba(255,255,255,.08)}
+  .role-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+  .role-badge.admin{background:#dbeafe;color:#1d4ed8}.role-badge.viewer{background:#dcfce7;color:#15803d}
+  .logout{display:block;margin-top:14px;color:#b9cbe2}
+  .main{flex:1}.topbar{background:#fff;border-bottom:1px solid var(--line);padding:16px 28px;display:flex;justify-content:space-between;align-items:center}
+  .user-chip{display:flex;align-items:center;gap:10px}.user-chip strong,.user-chip span{display:block}.user-chip span{font-size:11px;color:var(--muted)}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .content{padding:24px 28px;max-width:1400px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:20px}
+  .card.narrow{max-width:640px}.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px}
+  .pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:#eef2f7;color:#475569}
+  .pill.success{background:#dcfce7;color:#15803d}.pill.warning{background:#fef3c7;color:#b45309}.pill.danger{background:#fee2e2;color:#b91c1c}
+  .notice{display:flex;gap:16px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;margin-bottom:20px}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px;margin-bottom:20px}
+  .stat-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;align-items:center;gap:14px}
+  .stat-card strong{display:block;font-size:26px}
+  .table{width:100%;border-collapse:collapse}.table th,.table td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--line)}
+  .table th{background:#f8fafc;font-size:12px;text-transform:uppercase;color:#475569}
+  .subject-link{color:var(--blue);font-weight:600}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  .demo-banner{background:#fffbeb;border-bottom:1px solid #fde68a;color:#92400e;padding:10px 28px;font-size:13px}
+  @media(max-width:900px){.auth-shell{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}.sidebar{width:68px;flex-basis:68px}.nav a{font-size:0}.nav a::first-letter{font-size:18px}}
+</style>
+</head>
+<body>
+
+<!-- ============================ LOGIN ============================ -->
+<div id="loginScreen" class="auth-shell">
+  <div class="auth-brand">
+    <div class="brand-mark">CM</div>
+    <h1>Compliance Monitoring</h1>
+    <p>Demo Preview</p>
+    <div class="muted">&#9679; Tech Circulars &nbsp; &#9679; Document Control &nbsp; &#9679; Role Based Access</div>
+  </div>
+  <div class="auth-panel">
+    <div class="auth-card">
+      <h2>Sign in to the portal</h2>
+      <p class="muted">Use your SAP number and password.</p>
+      <div class="form-stack">
+        <label>SAP Number<input id="sap" placeholder="e.g. 90000001" inputmode="numeric"></label>
+        <label>Password<input id="password" type="password" placeholder="Enter password"></label>
+        <button class="btn primary full" onclick="doLogin()">Login</button>
+      </div>
+      <div id="loginMsg"></div>
+      <div class="hint">Demo sign-in: SAP <code>90000001</code> / password <code>Demo1234</code>.
+        You will be asked to change it immediately.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= CHANGE PASSWORD ======================= -->
+<div id="passwordScreen" class="hide">
+  <div class="topbar"><h2>Change Password (Mandatory)</h2></div>
+  <div class="content">
+    <div class="card narrow">
+      <div class="notice"><div style="font-size:26px">&#128266;</div><div>
+        <h3>Password change required</h3>
+        <p>This is your first login. Create your own password before using the portal.
+           A voice announcement has been played on your device speaker.</p>
+        <button class="btn small" onclick="speak(voiceText)">&#128266; Replay voice message</button>
+      </div></div>
+      <div class="form-stack">
+        <label>New password<input id="newPass" type="password" placeholder="At least 8 characters"></label>
+        <label>Confirm new password<input id="confirmPass" type="password"></label>
+        <button class="btn primary" onclick="savePassword()">Save new password</button>
+        <button class="btn" onclick="logout()">Cancel / logout</button>
+      </div>
+      <div id="passMsg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ MAIN APP ============================ -->
+<div id="appScreen" class="app-shell hide">
+  <aside class="sidebar">
+    <div class="sidebar-brand"><div class="brand-mark small">CM</div><div><strong>Compliance Monitoring</strong><span>Demo Preview</span></div></div>
+    <nav class="nav">
+      <a href="#" id="nav-dashboard" class="active" onclick="show('dashboard')">&#9634; Dashboard</a>
+      <a href="#" id="nav-circular" onclick="show('circular')">&#128196; Tech Circular</a>
+      <a href="#" id="nav-documents" onclick="show('documents')">&#128193; Documents</a>
+      <a href="#" id="nav-query" onclick="show('query')">&#9998; Query</a>
+      <a href="#" id="nav-reminder" onclick="show('reminder')">&#128276; Send Reminder</a>
+    </nav>
+    <div class="sidebar-foot">
+      <span id="roleBadge" class="role-badge"></span>
+      <a href="#" class="logout" onclick="logout()">&#8617; Logout</a>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="demo-banner">Static demo preview. All data shown is sample data; no real login, Excel recording or email is connected.</div>
+    <div class="topbar"><div><span class="muted small">Home / <span id="crumb">Dashboard</span></span>
+      <h2 id="pageTitle">Dashboard</h2></div>
+      <div class="user-chip"><div class="avatar" id="avatar">U</div><div><strong id="userName"></strong><span id="userSap"></span></div></div>
+    </div>
+    <div class="content">
+
+      <!-- Dashboard -->
+      <section id="dashboard">
+        <h3 id="welcome"></h3>
+        <div class="stat-grid">
+          <div class="stat-card"><div><strong id="statCircular">4</strong><span class="muted small">Tech Circulars</span></div></div>
+          <div class="stat-card"><div><strong>0</strong><span class="muted small">Documents</span></div></div>
+          <div class="stat-card"><div><strong id="statQueries">0</strong><span class="muted small">Queries</span></div></div>
+          <div class="stat-card"><div><strong id="statUnread">0</strong><span class="muted small">Pending to read</span></div></div>
+        </div>
+        <div class="card"><h3>Quick access</h3>
+          <p><a href="#" onclick="show('circular')">&#128196; Tech Circular</a> &nbsp;|&nbsp;
+             <a href="#" onclick="show('documents')">&#128193; Documents</a> &nbsp;|&nbsp;
+             <a href="#" onclick="show('query')">&#9998; Query</a> &nbsp;|&nbsp;
+             <a href="#" onclick="show('reminder')">&#128276; Send Reminder</a></p>
+        </div>
+        <div class="two-col">
+          <div class="card"><h3>Your permissions</h3><div id="permissions" class="small"></div></div>
+          <div class="card"><h3>Data sources</h3><p class="muted small">
+            Users, index and read-and-sign records: <b>built-in sample data</b><br>
+            PDFs: none in this demo<br>
+            Changes are stored only in your browser.</p></div>
+        </div>
+      </section>
+
+      <!-- Tech Circular -->
+      <section id="circular" class="hide">
+        <div class="card"><div class="card-head"><div><h3>Index of Tech Circulars</h3>
+          <p class="muted small">Click a subject in blue to open the matching circular.</p></div>
+          <span class="pill">4 circulars</span></div>
+          <table class="table"><thead><tr><th>SL</th><th>Subject</th><th>Date</th><th>Applicability</th><th>Status</th></tr></thead>
+          <tbody id="circularRows"></tbody></table>
+        </div>
+      </section>
+
+      <!-- PDF viewer -->
+      <section id="viewer" class="hide">
+        <div class="card"><div class="card-head"><h3 id="viewerTitle"></h3>
+          <button class="btn small" onclick="show('circular')">&#8592; Back to index</button></div>
+          <div id="viewerNote" class="notice hide"><div style="font-size:22px">&#9997;</div><div>
+            This circular has been recorded in the Read and Signed sheet against your name.</div></div>
+          <div style="border:1px solid var(--line);border-radius:8px;padding:30px;text-align:center;background:#f8fafc">
+            <div style="font-size:40px">&#128196;</div><p id="viewerFile" class="muted"></p>
+            <span class="pill">Sample circular - no PDF attached in this demo</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Documents -->
+      <section id="documents" class="hide">
+        <div id="uploadCard" class="card"><h3>Upload a file</h3>
+          <div style="display:flex;gap:10px"><input type="file" id="uploadFile"><button class="btn primary" onclick="uploadFile()">&#8593; Upload</button></div>
+          <p class="muted small">Only administrators can upload or delete files.</p></div>
+        <div class="card"><h3>Available files</h3><table class="table"><thead>
+          <tr><th>File name</th><th>Uploaded by</th><th>Action</th></tr></thead><tbody id="documentRows"></tbody></table></div>
+      </section>
+
+      <!-- Query -->
+      <section id="query" class="hide">
+        <div id="queryFormCard" class="card"><h3>Post a query</h3>
+          <p class="muted small">Your query will be emailed to all administrators.</p>
+          <div class="form-stack"><label>Subject<input id="querySubject" placeholder="Short subject"></label>
+          <label>Your query<textarea id="queryMessage" rows="5" placeholder="Describe your query..."></textarea></label>
+          <button class="btn primary" onclick="postQuery()">&#9993; Post &amp; email admins</button></div>
+          <div id="queryMsg"></div></div>
+        <div class="card"><h3>Queries</h3><div id="queryList" class="muted">No queries to display.</div></div>
+      </section>
+
+      <!-- Reminder -->
+      <section id="reminder" class="hide">
+        <div class="card"><h3>Select a Tech Circular</h3>
+          <p class="muted small">Viewers who have not opened the selected circular will be emailed.</p>
+          <label style="max-width:520px">Circular<select id="reminderSelect" onchange="renderReminder()"></select></label></div>
+        <div class="two-col">
+          <div class="card"><h3>Viewer status</h3><table class="table"><thead>
+            <tr><th>Name</th><th>SAP</th><th>Status</th></tr></thead><tbody id="reminderRows"></tbody></table></div>
+          <div class="card"><h3>Reminder recipients</h3><div id="reminderRecipients"></div>
+            <button class="btn primary" onclick="sendReminder()">&#128276; Send reminder</button>
+            <div id="reminderMsg"></div></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------- sample data only - no real records ---------------- */
+const users = [
+  {sap:'90000001', name:'Sample Admin One', email:'admin.one@example.invalid', role:'admin'},
+  {sap:'90000002', name:'Sample Admin Two', email:'admin.two@example.invalid', role:'admin'},
+  {sap:'90000003', name:'Sample Viewer One', email:'viewer.one@example.invalid', role:'viewer'},
+  {sap:'90000004', name:'Sample Viewer Two', email:'viewer.two@example.invalid', role:'viewer'},
+  {sap:'90000005', name:'Sample Viewer Three', email:'viewer.three@example.invalid', role:'viewer'}
+];
+const circulars = [
+  {sl:1, subject:'SAMPLE CIRCULAR 01 - INSPECTION PROCEDURE', date:'01-01-2026', applicability:'Sample Fleet A', pdf:'sample-circular-01.pdf'},
+  {sl:2, subject:'SAMPLE CIRCULAR 02 - MAINTENANCE UPDATE', date:'02-01-2026', applicability:'Sample Fleet B', pdf:'sample-circular-02.pdf'},
+  {sl:3, subject:'SAMPLE CIRCULAR 03 - SAFETY BULLETIN', date:'03-01-2026', applicability:'All Fleets', pdf:'sample-circular-03.pdf'},
+  {sl:4, subject:'SAMPLE CIRCULAR 04 - DOCUMENT CONTROL', date:'04-01-2026', applicability:'All Fleets', pdf:'sample-circular-04.pdf'}
+];
+const voiceText = 'Attention. This is your first login. It is mandatory to change your one time password now. Please enter and confirm a new password.';
+
+let current = null;
+let readLog = JSON.parse(localStorage.getItem('cm_read') || '[]');
+let queries  = JSON.parse(localStorage.getItem('cm_queries') || '[]');
+let docs     = JSON.parse(localStorage.getItem('cm_docs') || '[]');
+let passwords= JSON.parse(localStorage.getItem('cm_pass') || '{}');
+
+/* ---------------- helpers ---------------- */
+const $ = id => document.getElementById(id);
+function save(key, value){ localStorage.setItem(key, JSON.stringify(value)); }
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang='en-IN'; u.rate=0.95;
+  window.speechSynthesis.speak(u);
+}
+function show(screen){
+  ['dashboard','circular','viewer','documents','query','reminder'].forEach(s => $(s).classList.add('hide'));
+  $(screen).classList.remove('hide');
+  const titles={dashboard:'Dashboard',circular:'Tech Circular',viewer:'Tech Circular Viewer',documents:'Documents',query:'Queries',reminder:'Send Reminder'};
+  $('pageTitle').textContent=titles[screen]; $('crumb').textContent=titles[screen];
+  ['dashboard','circular','documents','query','reminder'].forEach(s=>$('nav-'+s).classList.remove('active'));
+  if($('nav-'+screen)) $('nav-'+screen).classList.add('active');
+  if(screen==='circular') renderCirculars();
+  if(screen==='documents') renderDocuments();
+  if(screen==='query') renderQueries();
+  if(screen==='reminder') renderReminder();
+}
+function enteredApp(){
+  $('loginScreen').classList.add('hide'); $('passwordScreen').classList.add('hide');
+  $('appScreen').classList.remove('hide');
+  $('userName').textContent=current.name; $('userSap').textContent='SAP '+current.sap;
+  $('avatar').textContent=current.name[0];
+  const badge=$('roleBadge'); badge.textContent=current.role.toUpperCase(); badge.className='role-badge '+current.role;
+  $('nav-reminder').classList.toggle('hide', current.role!=='admin');
+  $('uploadCard').classList.toggle('hide', current.role!=='admin');
+  $('queryFormCard').classList.toggle('hide', current.role!=='viewer');
+  $('welcome').textContent='Welcome, '+current.name;
+  $('statQueries').textContent = current.role==='admin' ? queries.length : queries.filter(q=>q.sap===current.sap).length;
+  $('statUnread').textContent = current.role==='viewer' ? circulars.filter(c=>!readLog.some(r=>r.sap===current.sap && r.subject===c.subject)).length : 0;
+  $('permissions').innerHTML = current.role==='admin'
+    ? '&#10003; View all data<br>&#10003; Upload and delete files<br>&#10003; Download files<br>&#10003; Send reminders'
+    : '&#10003; View circulars and documents<br>&#10003; Download files<br>&#10003; Post queries<br>&#10007; Cannot upload or delete';
+  show('dashboard');
+}
+
+/* ---------------- login / password ---------------- */
+function doLogin(){
+  const sap=$('sap').value.trim(), pass=$('password').value;
+  const user=users.find(u=>u.sap===sap);
+  if(!user){ $('loginMsg').innerHTML='<div class="hint" style="background:#fef2f2;color:#991b1b">SAP number not found.</div>'; return; }
+  if(passwords[sap] ? pass!==passwords[sap] : pass!=='Demo1234'){
+    $('loginMsg').innerHTML='<div class="hint" style="background:#fef2f2;color:#991b1b">Incorrect password.</div>'; return;
+  }
+  current=user;
+  if(!passwords[sap]){
+    $('loginScreen').classList.add('hide'); $('passwordScreen').classList.remove('hide');
+    setTimeout(()=>speak(voiceText), 300);
+  } else enteredApp();
+}
+function savePassword(){
+  const a=$('newPass').value, b=$('confirmPass').value;
+  if(a!==b){ $('passMsg').innerHTML='<div class="hint" style="background:#fef2f2">Passwords do not match.</div>'; return; }
+  if(a.length<8){ $('passMsg').innerHTML='<div class="hint" style="background:#fef2f2">Use at least 8 characters.</div>'; return; }
+  passwords[current.sap]=a; save('cm_pass',passwords); enteredApp();
+}
+function logout(){ current=null; $('appScreen').classList.add('hide'); $('passwordScreen').classList.add('hide'); $('loginScreen').classList.remove('hide'); }
+
+/* ---------------- circulars ---------------- */
+function renderCirculars(){
+  $('circularRows').innerHTML=circulars.map(c=>{
+    const read=readLog.some(r=>r.sap===current.sap && r.subject===c.subject);
+    const status=current.role==='viewer'
+      ? (read?'<span class="pill success">Read &amp; Signed</span>':'<span class="pill warning">Not read</span>')
+      : '<span class="pill">'+readLog.filter(r=>r.subject===c.subject).length+' viewer(s)</span>';
+    return `<tr><td>${c.sl}</td><td><a class="subject-link" href="#" onclick="openCircular(${c.sl})">${c.subject}</a></td><td>${c.date}</td><td>${c.applicability}</td><td>${status}</td></tr>`;
+  }).join('');
+}
+function openCircular(sl){
+  const c=circulars.find(x=>x.sl===sl);
+  $('viewerTitle').textContent=c.subject; $('viewerFile').textContent='PDF: '+c.pdf;
+  $('viewerNote').classList.toggle('hide', current.role!=='viewer');
+  if(current.role==='viewer' && !readLog.some(r=>r.sap===current.sap && r.subject===c.subject)){
+    readLog.push({sap:current.sap,name:current.name,email:current.email,subject:c.subject,at:new Date().toLocaleString('en-IN')});
+    save('cm_read',readLog);
+  }
+  show('viewer');
+}
+
+/* ---------------- documents ---------------- */
+function renderDocuments(){
+  $('documentRows').innerHTML = docs.length
+    ? docs.map(d=>`<tr><td>&#128196; ${d.name}</td><td>${d.by}</td><td><button class="btn small" onclick="alert('Sample document - downloads are not available in this demo.')">&#8595; Download</button>${current.role==='admin'?` <button class="btn small" onclick="deleteDoc('${d.id}')">&#128465; Delete</button>`:''}</td></tr>`).join('')
+    : '<tr><td colspan="3" class="muted">No files have been uploaded yet.</td></tr>';
+}
+function uploadFile(){
+  const f=$('uploadFile').files[0]; if(!f) return;
+  docs.push({id:String(Date.now()),name:f.name,by:current.name}); save('cm_docs',docs); renderDocuments();
+}
+function deleteDoc(id){ if(confirm('Delete this file?')){ docs=docs.filter(d=>d.id!==id); save('cm_docs',docs); renderDocuments(); } }
+
+/* ---------------- queries ---------------- */
+function postQuery(){
+  const subject=$('querySubject').value.trim(), message=$('queryMessage').value.trim();
+  if(!subject||!message){ $('queryMsg').innerHTML='<div class="hint" style="background:#fef2f2">Fill both fields.</div>'; return; }
+  queries.push({sap:current.sap,name:current.name,subject,message,at:new Date().toLocaleString('en-IN')});
+  save('cm_queries',queries); $('querySubject').value=''; $('queryMessage').value='';
+  $('queryMsg').innerHTML='<div class="hint">Demo only - no email is sent.</div>';
+  renderQueries();
+}
+function renderQueries(){
+  const visible=current.role==='admin'?queries:queries.filter(q=>q.sap===current.sap);
+  $('queryList').innerHTML = visible.length
+    ? visible.map(q=>`<div class="query-item"><b>${q.subject}</b><div class="muted small">${q.name} (SAP ${q.sap}) &middot; ${q.at}</div><p>${q.message}</p></div>`).join('')
+    : 'No queries to display.';
+}
+
+/* ---------------- reminders ---------------- */
+function renderReminder(){
+  $('reminderSelect').innerHTML=circulars.map(c=>`<option value="${c.subject}">${c.sl}. ${c.subject}</option>`).join('');
+  const subject=$('reminderSelect').value;
+  const viewers=users.filter(u=>u.role==='viewer');
+  $('reminderRows').innerHTML=viewers.map(v=>{
+    const read=readLog.some(r=>r.sap===v.sap && r.subject===subject);
+    return `<tr><td>${v.name}<br><span class="muted small">${v.email}</span></td><td>${v.sap}</td><td>${read?'<span class="pill success">Read</span>':'<span class="pill danger">Pending</span>'}</td></tr>`;
+  }).join('');
+  const pending=viewers.filter(v=>!readLog.some(r=>r.sap===v.sap && r.subject===subject));
+  $('reminderRecipients').innerHTML=pending.length
+    ? '<ul class="small">'+pending.map(v=>`<li>&#9993; ${v.email}</li>`).join('')+'</ul>'
+    : '<p class="muted small">All viewers have read this circular.</p>';
+  $('reminderSelect').dataset.pending=pending.length;
+}
+function sendReminder(){
+  const n=$('reminderSelect').dataset.pending;
+  $('reminderMsg').innerHTML=`<div class="hint">Demo only - no reminder email is sent to ${n} viewer(s).</div>`;
+}
+</script>
+</body>
+</html>
